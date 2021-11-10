@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class User implements Serializable {
@@ -31,6 +33,9 @@ public class User implements Serializable {
     private String[] authorities;
     private boolean isActive;
     private boolean isNotLocked;
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private Set<Order> orders = new HashSet<>();
 
     public User(){}
 
@@ -51,8 +56,30 @@ public class User implements Serializable {
         this.isActive = isActive;
         this.isNotLocked = isNotLocked;
     }
+    
+	public void add(Order order) {
+		
+		if (order != null) {
+			
+			if (orders == null) {
+				orders = new HashSet<>();
+			}
+			orders.add(order);
+			order.setUser(this);
+		}
+	}
+	
+       
 
-    public Long getId() {
+    public Set<Order> getOrders() {
+		return orders;
+	}
+
+	public void setOrders(Set<Order> orders) {
+		this.orders = orders;
+	}
+
+	public Long getId() {
         return id;
     }
 

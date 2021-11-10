@@ -35,13 +35,13 @@ import com.zoran.demo.constant.FileConstant;
 import com.zoran.demo.constant.SecurityConstant;
 import com.zoran.demo.domain.HttpResponse;
 import com.zoran.demo.entities.User;
+import com.zoran.demo.exceptions.EmailExistException;
+import com.zoran.demo.exceptions.EmailNotFoundException;
+import com.zoran.demo.exceptions.ExceptionHandling;
+import com.zoran.demo.exceptions.NotAnImageFileException;
+import com.zoran.demo.exceptions.UserNotFoundException;
+import com.zoran.demo.exceptions.UsernameExistException;
 import com.zoran.demo.domain.UserPrincipal;
-import com.zoran.demo.exception.EmailExistException;
-import com.zoran.demo.exception.EmailNotFoundException;
-import com.zoran.demo.exception.ExceptionHandling;
-import com.zoran.demo.exception.NotAnImageFileException;
-import com.zoran.demo.exception.UserNotFoundException;
-import com.zoran.demo.exception.UsernameExistException;
 import com.zoran.demo.services.UserService;
 import com.zoran.demo.utility.JWTTokenProvider;
 
@@ -64,7 +64,7 @@ public class UserResource extends ExceptionHandling {
 	        this.jwtTokenProvider = jwtTokenProvider;
 	    }
 	  
-	
+	   
 	@PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User user) {
         authenticate(user.getUsername(), user.getPassword());
@@ -185,4 +185,5 @@ public class UserResource extends ExceptionHandling {
         headers.add(SecurityConstant.JWT_TOKEN_HEADER, jwtTokenProvider.generateJwtToken(user));
         return headers;
     }
+    
 }

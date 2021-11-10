@@ -1,4 +1,4 @@
-package com.zoran.demo.exception;
+package com.zoran.demo.exceptions;
 
 public class UserNotFoundException extends Exception {
     public UserNotFoundException(String message) {

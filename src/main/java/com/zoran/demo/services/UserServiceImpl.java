@@ -44,13 +44,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.zoran.demo.entities.User;
+import com.zoran.demo.exceptions.EmailExistException;
+import com.zoran.demo.exceptions.EmailNotFoundException;
+import com.zoran.demo.exceptions.NotAnImageFileException;
+import com.zoran.demo.exceptions.UserNotFoundException;
+import com.zoran.demo.exceptions.UsernameExistException;
 import com.zoran.demo.domain.UserPrincipal;
 import com.zoran.demo.utility.Role;
-import com.zoran.demo.exception.EmailExistException;
-import com.zoran.demo.exception.EmailNotFoundException;
-import com.zoran.demo.exception.NotAnImageFileException;
-import com.zoran.demo.exception.UserNotFoundException;
-import com.zoran.demo.exception.UsernameExistException;
 import com.zoran.demo.repositories.UserRepository;
 import com.zoran.demo.services.EmailService;
 import com.zoran.demo.services.LoginAttemptService;

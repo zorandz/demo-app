@@ -1,4 +1,4 @@
-package com.zoran.demo.exception;
+package com.zoran.demo.exceptions;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
