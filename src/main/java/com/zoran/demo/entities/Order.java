@@ -1,9 +1,10 @@
 package com.zoran.demo.entities;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,9 +21,14 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name="orders")
-public class Order {
+public class Order implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -49,8 +55,9 @@ public class Order {
 	@UpdateTimestamp //another special from hybernate
 	private Date lastUpdated;
 	
+	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL, mappedBy="order")
-	private Set<OrderItem> orderItems = new HashSet<>();
+	private List<OrderItem> orderItems = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name="user_id")
@@ -69,7 +76,7 @@ public class Order {
 	
 	public Order(Long id, String orderTrackingNumber, int totalQuantity,
 				BigDecimal totalPrice, String status, Date dateCreated,
-				Date lastUpdated, Set<OrderItem> orderItems, User user,
+				Date lastUpdated, List<OrderItem> orderItems, User user,
 				Address shipping, Address billing) {
 		this.id = id;
 		this.orderTrackingNumber = orderTrackingNumber;
@@ -89,7 +96,7 @@ public class Order {
 		
 		if (item != null) {
 			if (orderItems == null) {
-				orderItems = new HashSet<>();
+				orderItems = new ArrayList<>();
 			}
 			
 			orderItems.add(item);
@@ -98,34 +105,21 @@ public class Order {
 	}
 	
 	
-	
-	
-	
-	
-	public Set<OrderItem> getOrderItems() {
+	public List<OrderItem> getOrderItems() {
 		return orderItems;
 	}
 
-
-
-
-
-	public void setOrderItems(Set<OrderItem> orderItems) {
+	
+	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
 	}
 
-
-
-
-
+	@JsonBackReference
 	public User getUser() {
 		return user;
 	}
 
-
-
-
-
+	
 	public void setUser(User user) {
 		this.user = user;
 	}

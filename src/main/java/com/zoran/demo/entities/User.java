@@ -1,12 +1,22 @@
 package com.zoran.demo.entities;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 public class User implements Serializable {
@@ -34,12 +44,14 @@ public class User implements Serializable {
     private boolean isActive;
     private boolean isNotLocked;
     
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private Set<Order> orders = new HashSet<>();
+	private List<Order> orders = new ArrayList<>();
+	
 
     public User(){}
 
-    public User(Long id, String userId, String firstName, String lastName, String username, String password, String email, String profileImageUrl, Date lastLoginDate, Date lastLoginDateDisplay, Date joinDate, String role, String[] authorities, boolean isActive, boolean isNotLocked) {
+    public User(List<Order> orders, Long id, String userId, String firstName, String lastName, String username, String password, String email, String profileImageUrl, Date lastLoginDate, Date lastLoginDateDisplay, Date joinDate, String role, String[] authorities, boolean isActive, boolean isNotLocked) {
         this.id = id;
         this.userId = userId;
         this.firstName = firstName;
@@ -55,27 +67,30 @@ public class User implements Serializable {
         this.authorities = authorities;
         this.isActive = isActive;
         this.isNotLocked = isNotLocked;
+        this.orders = orders;
+       
     }
-    
+  
 	public void add(Order order) {
 		
 		if (order != null) {
 			
 			if (orders == null) {
-				orders = new HashSet<>();
+				orders = new ArrayList<>();
 			}
 			orders.add(order);
 			order.setUser(this);
 		}
 	}
 	
-       
-
-    public Set<Order> getOrders() {
+	
+	@JsonManagedReference
+    public List<Order> getOrders() {
 		return orders;
 	}
 
-	public void setOrders(Set<Order> orders) {
+    
+	public void setOrders(List<Order> orders) {
 		this.orders = orders;
 	}
 

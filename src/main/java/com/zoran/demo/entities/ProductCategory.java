@@ -1,7 +1,15 @@
 package com.zoran.demo.entities;
 
-import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "product_category")
@@ -48,8 +56,24 @@ public class ProductCategory {
 		this.categoryName = categoryName;
 		this.products = products;
 	}
+	
+	public void addProduct(Product product) {
+		if (product != null) {
+			if (products == null) {
+				products = new HashSet<>();
+			}
+			
+			products.add(product);
+			product.setCategory(this);
+		}
+	}
     
     
     public ProductCategory() {}
+
+	public ProductCategory(Long categoryId, String categoryName) {
+		this.id = categoryId;
+		this.categoryName = categoryName;
+	}
 
 }

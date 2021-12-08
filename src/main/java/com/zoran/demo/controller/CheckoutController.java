@@ -12,8 +12,8 @@ import com.zoran.demo.dto.PurchaseResponse;
 import com.zoran.demo.services.CheckoutService;
 
 @RestController
-@RequestMapping("/api/checkout")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/checkout")
+//@CrossOrigin("http://localhost:4200")
 public class CheckoutController {
 
 	private CheckoutService checkoutService;

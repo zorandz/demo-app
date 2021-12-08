@@ -47,7 +47,7 @@ public class Product {
 
     @Column(name = "last_updated")
     @UpdateTimestamp
-    private Date lastUpdated;
+    private Date lastUpdated;    
 
 	public Long getId() {
 		return id;
@@ -61,8 +61,8 @@ public class Product {
 		return category;
 	}
 
-	public void setCategory(ProductCategory category) {
-		this.category = category;
+	public void setCategory(ProductCategory categoryId) {
+		this.category = categoryId;
 	}
 
 	public String getSku() {

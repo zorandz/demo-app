@@ -1,13 +1,13 @@
 package com.zoran.demo.controller;
 
+
 import java.io.ByteArrayOutputStream;
-
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,9 +30,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.zoran.demo.constant.Authority;
 import com.zoran.demo.constant.FileConstant;
 import com.zoran.demo.constant.SecurityConstant;
 import com.zoran.demo.domain.HttpResponse;
+import com.zoran.demo.domain.UserPrincipal;
+import com.zoran.demo.dto.Orders;
+import com.zoran.demo.dto.UsersListDTO;
+import com.zoran.demo.entities.Product;
 import com.zoran.demo.entities.User;
 import com.zoran.demo.exceptions.EmailExistException;
 import com.zoran.demo.exceptions.EmailNotFoundException;
@@ -41,21 +45,22 @@ import com.zoran.demo.exceptions.ExceptionHandling;
 import com.zoran.demo.exceptions.NotAnImageFileException;
 import com.zoran.demo.exceptions.UserNotFoundException;
 import com.zoran.demo.exceptions.UsernameExistException;
-import com.zoran.demo.domain.UserPrincipal;
 import com.zoran.demo.services.UserService;
 import com.zoran.demo.utility.JWTTokenProvider;
+import com.zoran.demo.utility.Role;
 
-//@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(path = "/user")
 public class UserResource extends ExceptionHandling {
 	  public static final String EMAIL_SENT = "An email with a new password was sent to: ";
-	    public static final String USER_DELETED_SUCCESSFULLY = "User deleted successfully";
+	    public static final String USER_DELETED_SUCCESSFULLY = "User successfully deleted.";
 	    private AuthenticationManager authenticationManager;
         private JWTTokenProvider jwtTokenProvider;
+        private UserService userService;
+        
 
-	
-	private UserService userService;
+
 	
 	  @Autowired
 	    public UserResource(AuthenticationManager authenticationManager, UserService userService, JWTTokenProvider jwtTokenProvider) {
@@ -91,7 +96,7 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("isNonLocked") String isNonLocked,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) 
                                         		   throws UserNotFoundException, UsernameExistException, EmailExistException, 
-                                        		   IOException, NotAnImageFileException {
+                                        		   IOException, NotAnImageFileException, MessagingException {
         User newUser = userService.addNewUser(firstName, lastName, username,email, role, Boolean.parseBoolean(isNonLocked), 
         										Boolean.parseBoolean(isActive), profileImage);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
@@ -121,11 +126,12 @@ public class UserResource extends ExceptionHandling {
     }
 	  
 	  @GetMapping("/list")
-	    public ResponseEntity<List<User>> getAllUsers() {
-	        List<User> users = userService.getUsers();
-	        return new ResponseEntity<>(users, HttpStatus.OK);
+	    public ResponseEntity<List<UsersListDTO>> getAllUsers() {
+		    
+		  List<UsersListDTO> users = this.userService.getTheList();
+		  return new ResponseEntity<List<UsersListDTO>>(users, HttpStatus.OK);
+
 	}
-	  
 	  @GetMapping("/resetpassword/{email}")
 	    public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) 
 	    		throws MessagingException, EmailNotFoundException {
@@ -143,7 +149,7 @@ public class UserResource extends ExceptionHandling {
 	  public ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) 
 	    		throws IOException {
 	        userService.deleteUser(username);
-	        return response(HttpStatus.NO_CONTENT, USER_DELETED_SUCCESSFULLY);
+	        return response(HttpStatus.OK, USER_DELETED_SUCCESSFULLY);
 	  }
 	
 	
@@ -175,6 +181,14 @@ public class UserResource extends ExceptionHandling {
 	        }
 	        return byteArrayOutputStream.toByteArray();
 	    }
+	   
+	@GetMapping(path = "/orders/{username}")
+	public ResponseEntity<List<Orders>> getOrders(@PathVariable("username") String username) {
+		
+		List<Orders> orders = userService.getOrders(username);
+		
+		return new ResponseEntity<>(orders, HttpStatus.OK);
+	}
 	   
 	private void authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

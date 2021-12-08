@@ -1,14 +1,22 @@
 package com.zoran.demo.services;
+import static com.zoran.demo.constant.FileConstant.DIRECTORY_CREATED;
+import static com.zoran.demo.constant.FileConstant.DOT;
+import static com.zoran.demo.constant.FileConstant.FILE_SAVED_IN_FILE_SYSTEM;
+import static com.zoran.demo.constant.FileConstant.FORWARD_SLASH;
+import static com.zoran.demo.constant.FileConstant.JPG_EXTENSION;
+import static com.zoran.demo.constant.FileConstant.NOT_AN_IMAGE_FILE;
+import static com.zoran.demo.constant.FileConstant.USER_FOLDER;
+import static com.zoran.demo.constant.FileConstant.USER_IMAGE_PATH;
+import static com.zoran.demo.constant.UserImplConstant.EMAIL_ALREADY_EXISTS;
+import static com.zoran.demo.constant.UserImplConstant.NO_USER_FOUND_BY_EMAIL;
+import static com.zoran.demo.constant.UserImplConstant.NO_USER_FOUND_BY_USERNAME;
+import static com.zoran.demo.constant.UserImplConstant.USERNAME_ALREADY_EXISTS;
 /*
 import static com.supportportal.constant.FileConstant.*;
 import static com.supportportal.constant.FileConstant.NOT_AN_IMAGE_FILE;
 import static com.supportportal.constant.UserImplConstant.*;
 import static com.supportportal.enumeration.Role.*;*/
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
-import static com.zoran.demo.constant.UserImplConstant.*;
-
-import static com.zoran.demo.constant.FileConstant.*;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.http.MediaType.IMAGE_GIF_VALUE;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
@@ -43,19 +51,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.zoran.demo.domain.UserPrincipal;
+import com.zoran.demo.dto.Orders;
+import com.zoran.demo.dto.UsersListDTO;
 import com.zoran.demo.entities.User;
 import com.zoran.demo.exceptions.EmailExistException;
 import com.zoran.demo.exceptions.EmailNotFoundException;
 import com.zoran.demo.exceptions.NotAnImageFileException;
 import com.zoran.demo.exceptions.UserNotFoundException;
 import com.zoran.demo.exceptions.UsernameExistException;
-import com.zoran.demo.domain.UserPrincipal;
-import com.zoran.demo.utility.Role;
 import com.zoran.demo.repositories.UserRepository;
-import com.zoran.demo.services.EmailService;
-import com.zoran.demo.services.LoginAttemptService;
-import com.zoran.demo.services.UserService;
 import com.zoran.demo.utility.ReformatInput;
+import com.zoran.demo.utility.Role;
 
 @Service
 @Transactional
@@ -94,12 +101,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+      
     @Override
-    public User register(String firstName, String lastName, String username, String email, String password)
-    		throws UserNotFoundException, UsernameExistException, EmailExistException, MessagingException {
-    	validateNewUsernameAndEmail(EMPTY, username, email);
+    public User register(String firstName, String lastName, String username, String email, String password) throws UserNotFoundException, UsernameExistException, EmailExistException, MessagingException {
+        validateNewUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         user.setUserId(generateUserId());
+        String generatedPassword = generatePassword();
         user.setFirstName(ReformatInput.capitalize(firstName));
         user.setLastName(ReformatInput.capitalize(lastName));
         user.setUsername(username);
@@ -108,22 +116,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(encodePassword(password));
         user.setActive(true);
         user.setNotLocked(true);
-        user.setRole(Role.ROLE_USER.name());
-        user.setAuthorities(Role.ROLE_USER.getAuthorities());
+        user.setRole(Role.ROLE_SUPER_ADMIN.name());
+        user.setAuthorities(Role.ROLE_SUPER_ADMIN.getAuthorities());
         user.setProfileImageUrl(getTemporaryProfileImageUrl(username));
         userRepository.save(user);
-        emailService.sendNewPasswordEmail(ReformatInput.capitalize(firstName), password, email);
+    //    LOGGER.info("New user password: " + password);
+        emailService.sendNewPasswordEmail(firstName, password, email);
         return user;
     }
 
     @Override
-    public User addNewUser(String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
+    public User addNewUser(String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException, MessagingException {
         validateNewUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String password = generatePassword();
         user.setUserId(generateUserId());
-        user.setFirstName(ReformatInput.capitalize(firstName));
-        user.setLastName(ReformatInput.capitalize(lastName));
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         user.setJoinDate(new Date());
         user.setUsername(username);
         user.setEmail(email);
@@ -136,20 +145,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
         saveProfileImage(user, profileImage);
         LOGGER.info("New user password: " + password);
+        emailService.sendNewPasswordEmail(firstName, password, email);
         return user;
     }
 
     @Override
     public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
         User currentUser = validateNewUsernameAndEmail(currentUsername, newUsername, newEmail);
-        currentUser.setFirstName(ReformatInput.capitalize(role));
-        currentUser.setLastName(ReformatInput.capitalize(role));
+        currentUser.setFirstName(ReformatInput.capitalize(newFirstName));
+        currentUser.setLastName(ReformatInput.capitalize(newLastName));
         currentUser.setUsername(newUsername);
         currentUser.setEmail(newEmail);
         currentUser.setActive(isActive);
         currentUser.setNotLocked(isNonLocked);
         currentUser.setRole(getRoleEnumName(role).name());
         currentUser.setAuthorities(getRoleEnumName(role).getAuthorities());
+        System.out.println("Trenutni user: " + currentUser.getFirstName());
         userRepository.save(currentUser);
         saveProfileImage(currentUser, profileImage);
         return currentUser;
@@ -286,5 +297,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return null;
         }
     }
+
+	@Override
+	public List<UsersListDTO> getTheList() {
+		return this.userRepository.findSiteUsers();
+	}
+	
+	@Override
+	public List<Orders> getOrders(String username) {
+		return this.userRepository.getOrders(username);
+	}
 
 }
