@@ -2,6 +2,7 @@ package com.zoran.demo.repositories;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,6 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     		"is_active as isActive, role, is_not_locked as isNotLocked, " +
     		"authorities FROM `full-stack-ecommerce`.user;")
     public List<UsersListDTO> findSiteUsers();
+      
     
     @Query(nativeQuery=true, value="SELECT orders.id as orderId, orders.total_price as price, orders.date_created as orderDate, order_item.image_url as imageURL, order_item.product_id as productId, product.name as productName "
     		+ "FROM orders "

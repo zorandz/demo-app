@@ -25,7 +25,7 @@ public class ProductsController {
 	ProductService productService;
 	
 	@PostMapping("/add-product")
-	@PreAuthorize("hasAnyAuthority('user:delete')")
+	//@PreAuthorize("hasAnyAuthority('user:read')")
     public ResponseEntity<HttpResponse> addNewProduct(@RequestParam("categoryId") Long categoryId,
     									   @RequestParam("categoryName") String categoryName,
                                            @RequestParam("sku") String sku,

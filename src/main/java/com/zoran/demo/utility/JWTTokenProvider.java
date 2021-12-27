@@ -1,8 +1,9 @@
 package com.zoran.demo.utility;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
-
-import static com.zoran.demo.constant.SecurityConstant.*;
+import static com.zoran.demo.constant.SecurityConstant.AUTHORITIES;
+import static com.zoran.demo.constant.SecurityConstant.EXPIRATION_TIME;
+import static com.zoran.demo.constant.SecurityConstant.TOKEN_CANNOT_BE_VERIFIED;
 import static java.util.Arrays.stream;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +31,7 @@ import com.zoran.demo.constant.SecurityConstant;
 import com.zoran.demo.domain.UserPrincipal;
 
 @Component
+@PropertySource(value = {"classpath:application-prod.properties"})
 public class JWTTokenProvider {
 
     @Value("${jwt.secret}")

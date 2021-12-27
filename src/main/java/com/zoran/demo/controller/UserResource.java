@@ -7,12 +7,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,14 +30,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.zoran.demo.constant.Authority;
 import com.zoran.demo.constant.FileConstant;
 import com.zoran.demo.constant.SecurityConstant;
 import com.zoran.demo.domain.HttpResponse;
 import com.zoran.demo.domain.UserPrincipal;
 import com.zoran.demo.dto.Orders;
 import com.zoran.demo.dto.UsersListDTO;
-import com.zoran.demo.entities.Product;
 import com.zoran.demo.entities.User;
 import com.zoran.demo.exceptions.EmailExistException;
 import com.zoran.demo.exceptions.EmailNotFoundException;
@@ -47,7 +45,6 @@ import com.zoran.demo.exceptions.UserNotFoundException;
 import com.zoran.demo.exceptions.UsernameExistException;
 import com.zoran.demo.services.UserService;
 import com.zoran.demo.utility.JWTTokenProvider;
-import com.zoran.demo.utility.Role;
 
 //@CrossOrigin("http://localhost:4200")
 @RestController
@@ -93,11 +90,11 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("email") String email,
                                            @RequestParam("role") String role,
                                            @RequestParam("isActive") String isActive,
-                                           @RequestParam("isNonLocked") String isNonLocked,
+                                           @RequestParam("isNotLocked") String isNotLocked,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) 
                                         		   throws UserNotFoundException, UsernameExistException, EmailExistException, 
                                         		   IOException, NotAnImageFileException, MessagingException {
-        User newUser = userService.addNewUser(firstName, lastName, username,email, role, Boolean.parseBoolean(isNonLocked), 
+        User newUser = userService.addNewUser(firstName, lastName, username,email, role, Boolean.parseBoolean(isNotLocked), 
         										Boolean.parseBoolean(isActive), profileImage);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
@@ -110,12 +107,12 @@ public class UserResource extends ExceptionHandling {
                                        @RequestParam("email") String email,
                                        @RequestParam("role") String role,
                                        @RequestParam("isActive") String isActive,
-                                       @RequestParam("isNonLocked") String isNonLocked,
+                                       @RequestParam("isNotLocked") String isNotLocked,
                                        @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) 
                                     		   throws UserNotFoundException, UsernameExistException, EmailExistException, 
                                     		   IOException, NotAnImageFileException {
         User updatedUser = userService.updateUser(currentUsername, firstName, lastName, username,email, 
-        						role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive), profileImage);
+        						role, Boolean.parseBoolean(isNotLocked), Boolean.parseBoolean(isActive), profileImage);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 	
@@ -125,10 +122,14 @@ public class UserResource extends ExceptionHandling {
 	        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 	  
+
+	
+
 	  @GetMapping("/list")
 	    public ResponseEntity<List<UsersListDTO>> getAllUsers() {
 		    
 		  List<UsersListDTO> users = this.userService.getTheList();
+
 		  return new ResponseEntity<List<UsersListDTO>>(users, HttpStatus.OK);
 
 	}

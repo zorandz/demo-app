@@ -18,7 +18,7 @@ public interface UsersListDTO {
 	public String getProfileImageUrl();
 	public Boolean getIsActive();
 	public String getRole();
-	public Boolean geIsNotLocked();
+	public Boolean getIsNotLocked();
 	public String getAuthorities();
 	
 	

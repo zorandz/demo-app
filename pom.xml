@@ -15,6 +15,7 @@
 	<description>zoran demo</description>
 	<properties>
 		<java.version>11</java.version>
+		<tomcat.version>9.0.56</tomcat.version>
 	</properties>
 	<dependencies>
 	<dependency>
@@ -53,6 +54,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+	
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -93,6 +95,10 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+				<fileName>java-backend</fileName>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

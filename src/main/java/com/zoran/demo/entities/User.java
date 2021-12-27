@@ -203,7 +203,7 @@ public class User implements Serializable {
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.isActive = active;
     }
 
     public boolean isNotLocked() {
@@ -211,6 +211,6 @@ public class User implements Serializable {
     }
 
     public void setNotLocked(boolean notLocked) {
-        isNotLocked = notLocked;
+        this.isNotLocked = notLocked;
     }
 }

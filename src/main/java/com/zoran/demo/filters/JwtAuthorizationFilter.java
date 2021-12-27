@@ -1,31 +1,33 @@
 package com.zoran.demo.filters;
 
-import com.zoran.demo.utility.JWTTokenProvider;
-
-
+import static com.zoran.demo.constant.SecurityConstant.OPTIONS_HTTP_METHOD;
+import static com.zoran.demo.constant.SecurityConstant.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-
-import static com.zoran.demo.constant.SecurityConstant.*;
+import com.zoran.demo.utility.JWTTokenProvider;
 
 @Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	
+	@Autowired
     private JWTTokenProvider jwtTokenProvider;
-
+    
     public JwtAuthorizationFilter(JWTTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
