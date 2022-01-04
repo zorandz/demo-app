@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +50,7 @@ import com.zoran.demo.utility.JWTTokenProvider;
 //@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping(path = "/user")
+//@CrossOrigin(origins={"http://3.22.211.164", "http://zoran-dzoic.com"})
 public class UserResource extends ExceptionHandling {
 	  public static final String EMAIL_SENT = "An email with a new password was sent to: ";
 	    public static final String USER_DELETED_SUCCESSFULLY = "User successfully deleted.";
@@ -113,6 +115,7 @@ public class UserResource extends ExceptionHandling {
                                     		   IOException, NotAnImageFileException {
         User updatedUser = userService.updateUser(currentUsername, firstName, lastName, username,email, 
         						role, Boolean.parseBoolean(isNotLocked), Boolean.parseBoolean(isActive), profileImage);
+ 
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 	

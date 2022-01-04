@@ -13,7 +13,7 @@ import com.zoran.demo.services.CheckoutService;
 
 @RestController
 @RequestMapping("/checkout")
-//@CrossOrigin("http://localhost:4200")
+//@CrossOrigin(origins={"http://3.22.211.164", "http://zoran-dzoic.com"})
 public class CheckoutController {
 
 	private CheckoutService checkoutService;

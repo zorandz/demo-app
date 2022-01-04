@@ -1,0 +1,340 @@
+sudo cp -r *.txt *.js *.css *.ico assets *.html /var/www/html
+
+sudo rm -r *.txt *.js *.css *.ico *.html /var/www/html/
+
+scp -i "europekey.pem" zoran.demo2.jar ec2-user@35.158.237.71:~/
+
+scp -r -i europekey.pem *.txt *.js *.css *.ico *.html ec2-user@35.158.237.71:~/
+
+sudo ln -s zoran.demo1.jar /etc/init.d/zoran.demo1
+
+#!/bin/bash
+sudo yum update -y
+sudo yum -y install httpd
+sudo systemctl enable httpd
+sudo service httpd start
+sudo amazon-linux-extras install java-openjdk11
+sudo yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+sudo yum install -y mysql-community-server
+sudo systemctl enable mysqld
+sudo systemctl start mysqld
+sudo adduser --home /var/lib/supporthome --shell /sbin/nologin/ supportuser
+sudo chmod 755 /var/lib/supporthome/
+
+
+zaustavljanje servisa:
+sudo service zoran.demo stop
+
+provjera statusa:
+sudo service zoran.demo status
+
+
+_________________________________________________________________________________
+
+
+prvo povezivanje sa serverom iz cmd-a:
+ssh -i "mojprvikeypair.pem" ec2-user@ec2-18-222-252-15.us-east-2.compute.amazonaws.com
+to nađem na instanci na aws stranici;
+
+prvo updejta sustav:
+sudo yum update -y
+
+instaliranje apache servera:
+sudo yum -y install httpd
+
+which ttpd
+- provjera postoji li instaliran
+
+start servisa:
+sudo service httpd start
+
+enable to restart on reboot:
+sudo systemctl enable httpd
+
+provjera statusa:
+sudo service httpd status
+
+ulazak u radni direktorij apachea:
+cd /var/www/html/
+
+print working directory:
+pwd
+
+- svaki html file koji se stavi tu - moć će se vidjet u web browseru.
+
+
+instaliranje java 11:
+sudo amazon-linux-extras install java-openjdk11
+
+promjena verzije jave:
+sudo alternatives --config java
+
+instaliranje jave:
+sudo yum install java-1.8.0-openjdk
+
+provjera verzije jave:
+java -version
+
+instaliranje mysql servera: prvo konfiguriranje mysql yum repozitorija:
+sudo yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+________________________________________________________________________________
+
+sudo wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+
+sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+________________________________________________________________________________
+
+sad instaliranje mysql servera:
+sudo yum install -y mysql-community-server
+
+sad se pokrene mysql server:
+sudo systemctl enable mysqld
+
+zatim:
+sudo systemctl start mysqld
+
+provjera statusa:
+sudo systemctl status mysqld
+
+sad setanje passworda, prvo u log-u nać privremeni pass:
+sudo grep 'temporary password' /var/log/mysqld.log
+
+tad izbaci default password koji kopiram
+
+Vik+ajf:o8<y
+
+
+
+sad izmijenit password ovako:
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'MyNewPass1!';
+
+sad radi ovo:
+sudo mysql_secure_installation
+
+nakon toga me pita za default password, koji passamo, pa traži da ukucam novi pass, ovaj sam ukucao:
+mysql pass: 1!Ejtudzi2h
+
+sad ulazak u mysql:
+-u = user, -p = to be prompted for a password:
+sudo mysql -u root -p
+
+pokaži database:
+show databases
+
+To create a MySQL user and assign a new password to it, run the following command:
+
+mysql> CREATE USER 'DatabaseUser'@'localhost' IDENTIFIED BY 'password';
+To give the new or existing user access to the new databases, run the following:
+
+mysql> GRANT ALL ON DatabaseName.* TO 'DatabaseUser'@"localhost";
+Lastly, reload all the privileges with:
+
+mysql> FLUSH PRIVILEGES;
+and exit the MySQL server with:
+
+mysql> exit;
+Your database is now ready, and we can now import the SQL file.
+
+_______________________________________________________________________
+
+
+da bi ekstraktirao database sa cmd-om, prvo navigiram u mysql server folder:
+cd C:\Program Files\MySQL\MySQL Server 8.0\bin
+
+tu uđem u mysql ovako:
+mysql -u root -p
+
+pa me pita za pass, koji ukucam, trenutni je: 1!Ejtudzi2h  ; a na pc-u ejtudzi
+
+ali izvan toga on radi extract, ponovo ulazi drugim windowom u bin folder i radi ovo:
+mysqldump -u root -p full-stack-ecommerce > C:/Learn/ecommerce_dump.sql
+
+i to je izvršeno uspješno. sad to importat u linux server
+
+
+
+
+
+generiranje jar filea, prvo sam morao instalirati maven, i onda:
+mvn clean install -DskipTests=true
+
+to napravi executable jar u target folderu moje aplikacije
+
+prebacivanje executable jar-a na linux server:
+scp = secure copy, -i = identification, ~/ = da ga stavi u home directory na serveru.
+scp -i "finalkey.pem" zoran.demo5.jar ec2-user@3.15.204.99:~/
+
+da vidimo koje permissione imamo:
+ls -lh zoran.demo-0.0.1.jar
+
+promijeni permissione:
+broj 7 znači da želim dati read-write-execute za prvog usera ovdje, to sam ja. 55 - za sve ostale isto.
+sudo chmod 755 zoran.demo-0.0.1.jar
+
+da se provjeri status mysql servera:
+sudo systemctl status mysqld
+
+
+sad pokretanje mojeg jar-a:
+./zoran.demo-0.0.1.jar
+
+sve radi sad :)
+
+i onda "ng build" front end app, to stvori dist folder koji ovako šaljem na aws linux:
+
+scp -r -i europekey.pem C:\Users\gentl\Documents\workspace-spring-tool-suite-4-4.11.1.RELEASE\zoran-demo-front\dist\zoran-demo-front\* ec2-user@35.158.237.71:~/
+
+nakon prenošenja, mora se prebacit u folder koji pokreće sve:
+cp = copy
+sudo cp -r *.txt *.js *.css *.ico assets *.html /var/www/html
+
+assets nije htjelo, googlam kako kopirat folder u drugi folder. Aha... samo -r tu iznad dodano.
+
+http://3.22.211.164
+
+_____________________________________________________________________________________________
+
+Stvaranje servisa od .jar backenda.
+
+Treba napravit dedicated usera koji run-a ovu aplikaciju kao servis:
+Njemu se onemogućava da se ulogira u mašinu, samo mu se dozvoljava da starta taj servis,
+zove se supportuser, a supporthome je mjesto na kojem se on nalazi na mašini.
+
+sudo adduser --home /var/lib/supporthome --shell /sbin/nologin/ supportuser
+
+da ga vidimo, run-amo ovo:
+
+sudo cat /etc/passwd
+
+navigiramo u direktorij s: cd /var/lib
+
+i tamo vidimo permissions sa: ls -lh
+
+mijenjamo permissions sa:
+sudo chmod 755 /var/lib/supporthome/
+
+aplikaciju ćemo muvat u njegov direktorij, ali samo on može pokretat ono što je u direktoriju,
+zato se mora malo loosen up permissions da bi i sustav mogao pokrenit aplikaciju pri svakom podizanju
+
+prebacimo aplikaciju u taj folder:
+sudo cp zoran.demo2.jar /var/lib/supporthome/
+
+sad se usera postavlja vlasnikom tog fajla:
+sudo chown supportuser:supportuser zoran.demo-0.0.3.jar
+
+sad se sa "ls -lh" može vidjet ta promjena.
+
+sad se želi učinit vlasnika tog fajla jedinom osobom koja može čitati i egzekutirati taj fajl:
+sudo chmod 500 zoran.demo-0.0.3.jar
+
+
+i nakon toga se treba promijenit atribut tog fajla da ga se učini imutabilnim, da ako ga netko želi izbrisat
+da to ne bi bilo moguće bez dopuštenja jer bi morali promijenit natrag ovaj atribut. To se radi ovako:
+sudo chattr +i zoran.demo.0.0.3.jar
+
+i sad kad se pokuša rimuvat sa "rm zoran.demo-0.0.3.jar" - dobije se: "Operation not permitted."
+
+da bi se izbrisalo, moram rimuvat taj atribut ovako:
+sudo chattr -i zoran.demo-0.0.3.jar
+
+sad se može izbrisat.
+
+Da bi se taj fajl pretvorio u servis, mora se napravit simbolični link, ovako:
+servisi se stvaraju u /etc/init.d - a ime mu se daje na kraju
+sudo ln -s /var/lib/supporthome/zoran.demo1.jar /etc/init.d/zoran.demo3
+
+
+sudo ln -s zoran.demo4.jar /etc/init.d/zoran.demo4
+
+
+- u zadnjem installmentu sam servis nazvao zorans
+
+sad se pokrene taj servis. to se može iz bilo kojeg foldera ovako:
+sudo service zoran.demo start
+
+zaustavljanje servisa:
+sudo service zoran.demo stop
+
+provjera statusa:
+sudo service zoran.demo status
+
+da bi vidio logove realtime, prvo navigiram u folder gdje su logovi:
+cd /var/log
+
+i tu utipkam ls da vidim sve fajlove,
+
+i onda:
+sudo tail -f zoran.demo4.log
+
+- to će pratit logove u realnom vremenu.
+
+
+
+
+
+
+___________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+apache httpd.conf
+
+sudo nano /etc/httpd/conf/httpd.conf
+
+sudo nano /etc/httpd/conf.d/ssl.conf
+
+sudo yum install mod_ssl
+
+
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+
+    # Don't rewrite files or directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Rewrite everything else to index.html
+    # to allow html5 state links
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+ili ovo:
+
+FallbackResource /index.html
+
+to se doda u httpd.conf, dodao sam na početak fajla i radi
+
+
+ssl config
+
+ServerAdmin   admin@domain.com
+DocumentRoot  /var/www/
+ServerName    www.domain.com
+ErrorLog      /www/home/logs/error_log
+SSLEngine                on
+SSLCertificateFile       /etc/ssl/certificate.crt
+SSLCertificateKeyFile    /etc/ssl/private.key
+SSLCertificateChainFile  /etc/ssl/ca_bundle.crt
+
+
+
+
+
+
+____________________________________________________________________
+
+keytool -list -v -keystore certificate.p12
+- navigira se u folder od Java 11 u Program files, i tamo se otvori cmd s ovim
+
+https://www.sslshopper.com/ssl-converter.html
+- konvertirat u .p12 od freessl-a.

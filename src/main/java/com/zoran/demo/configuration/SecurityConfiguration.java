@@ -2,8 +2,11 @@ package com.zoran.demo.configuration;
 
 import com.zoran.demo.filters.JwtAccessDeniedHandler;
 
+
 import com.zoran.demo.filters.JwtAuthenticationEntryPoint;
 import com.zoran.demo.filters.JwtAuthorizationFilter;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +19,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
 import static com.zoran.demo.constant.SecurityConstant.PUBLIC_URLS;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -29,11 +35,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JwtAuthorizationFilter jwtAuthorizationFilter;
     private JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    
+    private UserDetailsService userDetailsService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    
-    @Autowired
-    UserDetailsService userDetailsService;
 
     @Autowired
     public SecurityConfiguration(JwtAuthorizationFilter jwtAuthorizationFilter,
@@ -47,7 +50,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
-  
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -56,7 +58,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().cors().and()
+        http.requiresChannel(channel -> 
+        channel.anyRequest().requiresSecure())
+        		.csrf().disable().cors().and()
                 .sessionManagement().sessionCreationPolicy(STATELESS)
                 .and().authorizeRequests().antMatchers(PUBLIC_URLS).permitAll()
                 .anyRequest().authenticated()
@@ -66,13 +70,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
     }
+  
 
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-    
- 
-   
 }
